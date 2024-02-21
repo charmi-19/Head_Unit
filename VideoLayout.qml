@@ -15,13 +15,6 @@ Item {
         width: parent.width
     }
 
-    function formatDuration(duration) {
-        var minutes = Math.floor(duration / 60000);
-        var seconds = Math.floor((duration % 60000) / 1000);
-        seconds = seconds < 10 ? "0"+seconds : seconds;
-        return minutes + ':' + seconds;
-    }
-
     Item {
         id: loopItemForVideo
         anchors.top: videoLayoutForBack.top
@@ -57,7 +50,6 @@ Item {
             model: ListModel {
                 id: videoListModel
             }
-
             delegate: Rectangle {
                 width: parent.width
                 height: 70
@@ -87,7 +79,6 @@ Item {
                     }
                 }
             }
-
         }
     }
 
@@ -222,7 +213,7 @@ Item {
         }
 
         Button {
-            id: imageContainer
+            id: playOrPauseButton
             visible: videoSelected
             height: control.height
             width: 30
@@ -250,6 +241,34 @@ Item {
             }
         }
 
+        Button {
+            id: nextVideo
+            visible: videoSelected
+            height: control.height
+            width: 30
+            anchors.left: playOrPauseButton.right
+            anchors.leftMargin: 3
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 45
+            background: Rectangle {
+                color: "transparent"
+            }
+            enabled: listView.currentIndex < videoListModel.count - 1
+            Image {
+                id: nextButton
+                source: "qrc:/assets/Images/Next.svg"
+                anchors.centerIn: parent
+                width: parent.width
+                height: parent.height
+            }
+            onClicked: {
+                if (listView.currentIndex < videoListModel.count - 1) {
+                    listView.currentIndex++;
+                    playCurrentItem();
+                }
+            }
+        }
+
         Text {
             visible: videoSelected
             id: videoDuration
@@ -258,30 +277,37 @@ Item {
             color: "#fff"
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 51
-            anchors.left: imageContainer.right
-            anchors.leftMargin: 4
+            anchors.left: nextVideo.right
+            anchors.leftMargin: 8
         }
 
         Image {
             visible: videoSelected
-            id: volumeDown
-            source: "qrc:/assets/Images/Volume_Down.svg"
+            id: volumeUp
+            source: "qrc:/assets/Images/Volume_Up.svg"
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 45
-            anchors.right: volumeControl.left
-            anchors.rightMargin: 10
+            anchors.bottomMargin: 50
+            anchors.right: parent.right
+            anchors.rightMargin: 20
             width: 25
             height: 25
+            MouseArea {
+                id: volumeMouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: {
+                    volumeControl.visible = !volumeControl.visible;
+                }
+            }
         }
 
         Slider {
-            visible: videoSelected
+            visible: false
             id: volumeControl
             value: mediaPlayer.volume // Initial value
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 40
+            anchors.bottomMargin: 47
             anchors.right: volumeUp.left
-            anchors.rightMargin: 10
             width: 150
 
             // Slider background and handle properties...
@@ -317,25 +343,25 @@ Item {
                 mediaPlayer.volume = volumeControl.value;
             }
         }
-
-        Image {
-            visible: videoSelected
-            id: volumeUp
-            source: "qrc:/assets/Images/Volume_Up.svg"
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 45
-            anchors.right: parent.right
-            anchors.rightMargin: 20
-            width: 25
-            height: 25
-        }
     }
-
 
     /////////////////////////////////////////////////////////////////////////////////
 
     property bool videoSelected: false
     property bool videoListModelPopulated: false
     property string elapsedTime: '0:00'
+
+    function formatDuration(duration) {
+        var minutes = Math.floor(duration / 60000);
+        var seconds = Math.floor((duration % 60000) / 1000);
+        seconds = seconds < 10 ? "0"+seconds : seconds;
+        return minutes + ':' + seconds;
+    }
+
+    function playCurrentItem() {
+        var model = videoListModel.get(listView.currentIndex);
+        mediaPlayer.source = model.url;
+        mediaPlayer.play();
+    }
 }
 

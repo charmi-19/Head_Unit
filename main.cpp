@@ -2,7 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <currenttime.h>
 #include <QQmlContext>
-#include <audio.h>
+#include <gearselection.h>
 
 int main(int argc, char *argv[])
 {
@@ -18,10 +18,12 @@ int main(int argc, char *argv[])
     QQmlContext * rootContext = engine.rootContext();
     rootContext->setContextProperty("Head_Unit", &obj);
 
-    ///////////////////////////////////////
-    // Audio audioObj;
-    // audioObj.playAudio();
-    //////////////////////////////////////
+    GearSelection gearSelection;
+    QObject::connect(&obj, SIGNAL(gearChanged()), &obj, SLOT(gear()));
+
+    QQmlContext * rootContext1 = engine.rootContext();
+    rootContext1->setContextProperty("GearSelection", &gearSelection);
+
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(

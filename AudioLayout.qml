@@ -14,16 +14,6 @@ Item {
         width: parent.width
     }
 
-    // property var audioList: {"bird-call-in-spring": {name: "Birds call in Spring", url: "qrc:/assets/Audio/bird-call-in-spring.mp3"}, "bird-singing-and-water-splashing": {name: "Birds singing and and Water Splashing", url: "qrc:/assets/Audio/bird-singing-and-water-splashing.mp3"},
-    //     "bird-chirping": {name: "Birds Chirping", url: "qrc:/assets/Audio/birds-chirping.mp3"}, "forest-ambience-with-cuckoo": {name: "Forest Ambience with cuckoo", url: "qrc:/assets/Audio/forest-ambience-with-cuckoo.mp3"}}
-
-    function formatDuration(duration) {
-        var minutes = Math.floor(duration / 60000);
-        var seconds = Math.floor((duration % 60000) / 1000);
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        return minutes + ':' + seconds;
-    }
-
     Item {
         id: loopItemForAudio
         anchors.top: audioLayoutForBack.top
@@ -45,66 +35,56 @@ Item {
                         audioListModel.append({
                                                   "name": folderModel.get(i, "fileName").split(".")[0],
                                                   "url": "file://" + folderModel.get(i, "filePath"),
-                                                  "logo": `qrc:/assets/Images/${folderModel.get(i, "fileName").split(".")[0]}.jpg`
+                                                  "logo": `${folderModel.folder}/Images/${folderModel.get(i, "fileName").split(".")[0]}.jpg`
                                               });
                     }
                 }
             }
         }
 
-        ListView {
-            id: listView
+        ScrollView {
+            id: scrollView
             width: parent.width
             height: parent.height
-            // model: ListModel {
-            //     id: audioModel
-
-            //     // Function to populate the model with audio file names
-            //     function populateAudioModel(audioList) {
-            //         for (var key in audioList) {
-            //             audioModel.append({ "name": audioList[key].name, "url": audioList[key].url });
-            //         }
-            //     }
-
-            //     Component.onCompleted: {
-            //         populateAudioModel(audioList);
-            //     }
-            // }
-            model: ListModel {
-                id: audioListModel
-            }
-
-            delegate: Rectangle {
-                width: parent.width
-                height: 70
-                color: "transparent"
-                border.color: "#fff"
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 20
-                    text: model.name
-                    color: "#fff"
-                    font.pointSize: 16
+            ListView {
+                id: listView
+                width: scrollView.width
+                height: scrollView.height
+                model: ListModel {
+                    id: audioListModel
                 }
+                delegate: Rectangle {
+                    width: parent.width
+                    height: 70
+                    color: "transparent"
+                    border.color: "#fff"
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        // Play the selected audio file
-                        audioSelected = true;
-                        mediaPlayer.source = model.url;
-                        mediaPlayer.play();
-                        listView.currentIndex = index;
-                        currentLogo = model.logo;
-                        mediaPlayer.durationChanged.connect(function() {
-                            console.log("Duration:", formatDuration(mediaPlayer.duration));
-                        });
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        text: model.name
+                        color: "#fff"
+                        font.pointSize: 16
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            // Play the selected audio file
+                            audioSelected = true;
+                            mediaPlayer.source = model.url;
+                            mediaPlayer.play();
+                            listView.currentIndex = index;
+                            currentLogo = model.logo;
+                            mediaPlayer.durationChanged.connect(function() {
+                                console.log("Duration:", formatDuration(mediaPlayer.duration));
+                            });
+                        }
                     }
                 }
-            }
 
+            }
         }
     }
 
@@ -174,7 +154,7 @@ Item {
                 id: audioLogo
                 source: currentLogo
                 anchors.fill: parent
-                fillMode: Image.PreserveAspectCrop
+                fillMode: Image.Stretch
             }
         }
         Rectangle {
@@ -311,7 +291,7 @@ Item {
             background: Rectangle {
                 color: "transparent"
             }
-            // enabled: listView.currentIndex > 0
+            enabled: listView.currentIndex > 0
             Image {
                 id: previousButton
                 source: "qrc:/assets/Images/Previous.svg"
@@ -362,14 +342,14 @@ Item {
             visible: audioSelected
             height: control.height
             width: 30
-            anchors.left: playOrPauseButton.left
-            anchors.leftMargin: 30
+            anchors.left: playOrPauseButton.right
+            anchors.leftMargin: 3
             anchors.top: control.bottom
             anchors.topMargin: 8
             background: Rectangle {
                 color: "transparent"
             }
-            // enabled: listView.currentIndex > 0
+            enabled: listView.currentIndex < audioListModel.count - 1
             Image {
                 id: nextButton
                 source: "qrc:/assets/Images/Next.svg"
@@ -390,7 +370,7 @@ Item {
             id: volumeUp
             source: "qrc:/assets/Images/Volume_Up.svg"
             anchors.top: control.bottom
-            anchors.topMargin: 10
+            anchors.topMargin: 12
             anchors.right: control.right
             width: 25
             height: 25
@@ -398,73 +378,51 @@ Item {
                 id: volumeMouseArea
                 anchors.fill: parent
                 hoverEnabled: true
-                onEntered: {
-                    volumeControl.visible = true;
-                }
                 onClicked: {
                     volumeControl.visible = !volumeControl.visible;
                 }
             }
         }
-        Item {
-            id: volumeContainer
-            anchors.top: control.bottom
-            anchors.topMargin: 7
-            anchors.right: volumeUp.left
-            // anchors.rightMargin: -12
+        Slider {
+            visible: false
+            id: volumeControl
+            value: mediaPlayer.volume // Initial value
             width: 150
-
-            MouseArea {
-                id: volumeSliderMouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: {
-                    volumeControl.visible = true;
-                }
-                onExited: {
-                    volumeControl.visible = false;
+            anchors.top: control.bottom
+            anchors.topMargin: 10
+            anchors.right: volumeUp.left
+            // Slider background and handle properties...
+            background: Rectangle {
+                x: volumeControl.leftPadding
+                y: volumeControl.topPadding + volumeControl.availableHeight / 2 - height / 2
+                implicitWidth: 200
+                implicitHeight: 2
+                width: volumeControl.availableWidth
+                height: implicitHeight
+                radius: 2
+                color: "#bdbebf"
+                Rectangle {
+                    width: volumeControl.visualPosition * parent.width
+                    height: parent.height
+                    color: "gray"
+                    radius: 2
                 }
             }
-
-            Slider {
-                visible: false
-                id: volumeControl
-                value: mediaPlayer.volume // Initial value
-                width: parent.width
-                anchors.top: parent.top
-                anchors.right: parent.right
-                // Slider background and handle properties...
-                background: Rectangle {
-                    x: volumeControl.leftPadding
-                    y: volumeControl.topPadding + volumeControl.availableHeight / 2 - height / 2
-                    implicitWidth: 200
-                    implicitHeight: 3
-                    width: volumeControl.availableWidth
-                    height: implicitHeight
-                    radius: 2
-                    color: "#bdbebf"
-                    Rectangle {
-                        width: volumeControl.visualPosition * parent.width
-                        height: parent.height
-                        color: "gray"
-                        radius: 2
-                    }
-                }
-                handle: Rectangle {
-                    x: volumeControl.leftPadding + volumeControl.visualPosition * (volumeControl.availableWidth - width)
-                    y: volumeControl.topPadding + volumeControl.availableHeight / 2 - height / 2
-                    implicitWidth: 20
-                    implicitHeight: 20
-                    radius: 10
-                    color: volumeControl.pressed ? "#f0f0f0" : "#f6f6f6"
-                    border.color: "#bdbebf"
-                }
-                onValueChanged: {
-                    // Set the volume of the media player
-                    mediaPlayer.volume = volumeControl.value;
-                }
+            handle: Rectangle {
+                x: volumeControl.leftPadding + volumeControl.visualPosition * (volumeControl.availableWidth - width)
+                y: volumeControl.topPadding + volumeControl.availableHeight / 2 - height / 2
+                implicitWidth: 16
+                implicitHeight: 16
+                radius: 8
+                color: volumeControl.pressed ? "#f0f0f0" : "#f6f6f6"
+                border.color: "#bdbebf"
+            }
+            onValueChanged: {
+                // Set the volume of the media player
+                mediaPlayer.volume = volumeControl.value;
             }
         }
+
     }
 
 
@@ -474,6 +432,13 @@ Item {
     property bool audioListModelPopulated: false
     property string elapsedTime: '0:00'
     property string currentLogo: ""
+
+    function formatDuration(duration) {
+        var minutes = Math.floor(duration / 60000);
+        var seconds = Math.floor((duration % 60000) / 1000);
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        return minutes + ':' + seconds;
+    }
 
     function playCurrentItem() {
         var model = audioListModel.get(listView.currentIndex);
