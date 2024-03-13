@@ -1,4 +1,4 @@
-QT += quick multimedia dbus core
+QT += quick multimedia dbus core quickcontrols2 webview quick location positioning
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -25,3 +25,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     currenttime.h \
     gearselection.h
+
+QT_DEBUG_PLUGINS=1

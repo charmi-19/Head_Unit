@@ -3,11 +3,56 @@ import QtMultimedia 5.15
 import QtQml.Models 2.15
 import QtQuick.Controls 2.15
 import Qt.labs.folderlistmodel 2.15
+import QtGraphicalEffects 1.15
 
 Item {
     id: audioLayout
     width: parent.width
     height: parent.height
+
+    RadialGradient {
+        visible: audioListModel.length === 0
+        anchors.fill: parent
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: themeColor }
+            GradientStop { position: 0.4; color: "transparent" }
+            GradientStop { position: 1.0; color: "#000" }
+        }
+    }
+
+    Text {
+        visible: audioListModel.length === 0
+        color: "#fff"
+        text: "Please plug-in your USB!"
+        font.pointSize: 16
+        anchors.centerIn: parent
+    }
+
+    GearMenu {
+        id: gearMenu
+        width: parent.width
+        height: parent.height
+    }
+
+    Rectangle {
+        id: topLine
+        anchors.top: parent.top
+        anchors.topMargin: 40
+        width: parent.width
+        border.color: "#fff"
+        height: 1
+    }
+
+    Rectangle {
+        id: bottomLine
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: 55
+        }
+        border.color: "#fff"
+        width: parent.width
+        height: 1
+    }
 
     Back {
         id: audioLayoutForBack
@@ -15,55 +60,57 @@ Item {
     }
 
     Item {
+        visible: audioListModel.length > 0
         id: loopItemForAudio
-        anchors.top: audioLayoutForBack.top
-        anchors.topMargin: 40
-        anchors.left: audioLayoutForBack.left
-        width: parent.width * 0.4
-        height: parent.height - audioLayoutForBack.height
+        anchors{
+            top: audioLayoutForBack.top
+            topMargin: 40
+            left: audioLayoutForBack.left
+            bottom: bottomLine.top
 
-        FolderListModel {
-            id: folderModel
-            folder: "file:///home/charmi/Music" // Specify the path to your pendrive folder
-            nameFilters: ["*.mp3"]
-            showDirs: false
-            onStatusChanged: {
-                if (status === FolderListModel.Ready) {
-                    console.log(folderModel.count, status)
-                    for (var i = 0; i < folderModel.count; i++) {
-                        console.log(folderModel.get(i, "fileName"), "...", folderModel.get(i, "filePath"))
-                        audioListModel.append({
-                                                  "name": folderModel.get(i, "fileName").split(".")[0],
-                                                  "url": "file://" + folderModel.get(i, "filePath"),
-                                                  "logo": `${folderModel.folder}/Images/${folderModel.get(i, "fileName").split(".")[0]}.jpg`
-                                              });
-                    }
-                }
-            }
         }
-
+        width: parent.width * 0.4
+        height: parent.height
         ScrollView {
             id: scrollView
             width: parent.width
             height: parent.height
+            clip: true
+            ScrollBar.horizontal.visible: false
             ListView {
                 id: listView
                 width: scrollView.width
                 height: scrollView.height
-                model: ListModel {
-                    id: audioListModel
-                }
+                model: audioListModel
                 delegate: Rectangle {
                     width: parent.width
-                    height: 70
+                    height: 72
                     color: "transparent"
                     border.color: "#fff"
 
+                    Rectangle {
+                        id: smallLogo
+                        width: 40
+                        height: width
+                        radius: width * 0.5
+                        anchors {
+                            verticalCenter: parent.verticalCenter
+                            left: parent.left
+                            leftMargin: 20
+                        }
+
+                        Image {
+                            source: modelData.logo
+                            anchors.fill: parent
+                            fillMode: Image.Stretch
+                        }
+                    }
+
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.leftMargin: 20
-                        text: model.name
+                        anchors.left: smallLogo.right
+                        anchors.leftMargin: 10
+                        text: modelData.name
                         color: "#fff"
                         font.pointSize: 16
                     }
@@ -73,62 +120,52 @@ Item {
                         onClicked: {
                             // Play the selected audio file
                             audioSelected = true;
-                            mediaPlayer.source = model.url;
+                            mediaPlayer.source = modelData.url;
                             mediaPlayer.play();
-                            listView.currentIndex = index;
-                            currentLogo = model.logo;
-                            mediaPlayer.durationChanged.connect(function() {
-                                console.log("Duration:", formatDuration(mediaPlayer.duration));
-                            });
+                            currentSongIndex = index;
+                            currentLogo = modelData.logo;
                         }
                     }
                 }
-
-            }
-        }
-    }
-
-    MediaPlayer {
-        id: mediaPlayer
-        volume: 1.0 // Initial volume
-        onDurationChanged: {
-            if (mediaPlayer.duration > 0) {
-                // Start the slider update timer when the duration becomes available
-                sliderUpdateTimer.start();
-            }
-        }
-        onPositionChanged: {
-            if (mediaPlayer.duration > 0) {
-                control.value = mediaPlayer.position / mediaPlayer.duration;
-                elapsedTime = formatDuration(mediaPlayer.position);
-            }
-        }
-        onErrorChanged: {
-            // Debugging: Check if there's any error
-            if (mediaPlayer.error !== MediaPlayer.NoError) {
-                console.error("MediaPlayer Error:", mediaPlayer.errorString);
             }
         }
     }
 
     Rectangle {
+        visible: audioListModel.length > 0
         id: verticalSeparator
         color: "#fff"
         height: parent.height
         width: 1
-        anchors.top: audioLayoutForBack.top
-        anchors.topMargin: 40
-        anchors.left: loopItemForAudio.right
+        anchors {
+            top: audioLayoutForBack.top
+            topMargin: 40
+            left: loopItemForAudio.right
+            bottom: bottomLine.top
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////
 
     Item {
-        height: parent.height - audioLayoutForBack.height
+        visible: audioListModel.length > 0
+        height: parent.height
         width: parent.width - loopItemForAudio.width
-        anchors.top: audioLayoutForBack.top
-        anchors.topMargin: 40 // need to check
-        anchors.left: verticalSeparator.right
+        anchors {
+            top: audioLayoutForBack.top
+            topMargin: 40 // need to check
+            left: verticalSeparator.right
+            bottom: bottomLine.top
+        }
+
+        RadialGradient {
+            anchors.fill: parent
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: themeColor }
+                GradientStop { position: 0.4; color: "transparent" }
+                GradientStop { position: 1.0; color: "#000" }
+            }
+        }
 
         Text {
             visible: !audioSelected
@@ -195,19 +232,6 @@ Item {
             width: parent.right - audioLogoOuter.right
         }
 
-        Timer {
-            id: sliderUpdateTimer
-            interval: 1000 // Update every second
-            running: mediaPlayer.playbackState === MediaPlayer.PlayingState // Only update when the media is playing
-
-            onTriggered: {
-                if (mediaPlayer.duration > 0) {
-                    console.log("Started...")
-                    control.value = mediaPlayer.position / mediaPlayer.duration;
-                }
-            }
-        }
-
         Text {
             visible: audioSelected
             id: audioDuration
@@ -223,7 +247,7 @@ Item {
         Slider {
             visible: audioSelected
             id: control
-            value: 0.0
+            value: sliderValue
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: audioLogoOuter.bottom
             anchors.left: audioDuration.right
@@ -291,7 +315,7 @@ Item {
             background: Rectangle {
                 color: "transparent"
             }
-            enabled: listView.currentIndex > 0
+            enabled: currentSongIndex > 0
             Image {
                 id: previousButton
                 source: "qrc:/assets/Images/Previous.svg"
@@ -300,10 +324,9 @@ Item {
                 height: parent.height
             }
             onClicked: {
-                console.log("Something", listView[listView.currentIndex])
-                if (listView.currentIndex > 0) {
-                    console.log(listView);
-                    listView.currentIndex--;
+                console.log("Something", currentSongIndex)
+                if (currentSongIndex > 0) {
+                    currentSongIndex--;
                     playCurrentItem();
                 }
             }
@@ -349,7 +372,7 @@ Item {
             background: Rectangle {
                 color: "transparent"
             }
-            enabled: listView.currentIndex < audioListModel.count - 1
+            enabled: currentSongIndex < audioListModel.length - 1
             Image {
                 id: nextButton
                 source: "qrc:/assets/Images/Next.svg"
@@ -358,8 +381,8 @@ Item {
                 height: parent.height
             }
             onClicked: {
-                if (listView.currentIndex < audioListModel.count - 1) {
-                    listView.currentIndex++;
+                if (currentSongIndex < audioListModel.length - 1) {
+                    currentSongIndex++;
                     playCurrentItem();
                 }
             }
@@ -422,28 +445,7 @@ Item {
                 mediaPlayer.volume = volumeControl.value;
             }
         }
-    }
 
-
-    /////////////////////////////////////////////////////////////////////////////////
-
-    property bool audioSelected: false
-    property bool audioListModelPopulated: false
-    property string elapsedTime: '0:00'
-    property string currentLogo: ""
-
-    function formatDuration(duration) {
-        var minutes = Math.floor(duration / 60000);
-        var seconds = Math.floor((duration % 60000) / 1000);
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        return minutes + ':' + seconds;
-    }
-
-    function playCurrentItem() {
-        var model = audioListModel.get(listView.currentIndex);
-        mediaPlayer.source = model.url;
-        currentLogo = model.logo;
-        mediaPlayer.play();
     }
 }
 

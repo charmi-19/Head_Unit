@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     rootContext->setContextProperty("Head_Unit", &obj);
 
     GearSelection gearSelection;
-    QObject::connect(&obj, SIGNAL(gearChanged()), &obj, SLOT(gear()));
+    QObject::connect(&gearSelection, SIGNAL(gearChanged()), &gearSelection, SLOT(gear()));
 
     QQmlContext * rootContext1 = engine.rootContext();
     rootContext1->setContextProperty("GearSelection", &gearSelection);

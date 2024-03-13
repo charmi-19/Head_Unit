@@ -3,12 +3,30 @@ import QtMultimedia 5.15
 import QtQuick.Controls 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtQml 2.15
+import QtGraphicalEffects 1.15
 
 
 Item {
     id: videoLayout
     width: parent.width
     height: parent.height
+
+    GearMenu {
+        id: gearMenu
+        width: parent.width
+        height: parent.height
+    }
+
+    Rectangle {
+        id: bottomLine
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: 55
+        }
+        border.color: "#fff"
+        width: parent.width
+        height: 1
+    }
 
     Back {
         id: videoLayoutForBack
@@ -17,9 +35,12 @@ Item {
 
     Item {
         id: loopItemForVideo
-        anchors.top: videoLayoutForBack.top
-        anchors.topMargin: 40
-        anchors.left: videoLayoutForBack.left
+        anchors{
+            top: videoLayoutForBack.top
+            topMargin: 40
+            left: videoLayoutForBack.left
+            bottom: bottomLine.top
+        }
         width: parent.width * 0.4
         height: parent.height - videoLayoutForBack.height
 
@@ -43,39 +64,50 @@ Item {
             }
         }
 
-        ListView {
-            id: listView
+        ScrollView {
+            id: scrollView
             width: parent.width
             height: parent.height
-            model: ListModel {
-                id: videoListModel
-            }
-            delegate: Rectangle {
+            clip: true
+            ScrollBar.horizontal.visible: false
+            ListView {
+                id: listView
                 width: parent.width
-                height: 70
-                color: "transparent"
-                border.color: "#fff"
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 20
-                    text: model.name
-                    color: "#fff"
-                    font.pointSize: 16
+                height: parent.height
+                model: ListModel {
+                    id: videoListModel
                 }
+                delegate: Rectangle {
+                    width: parent.width
+                    height: 70
+                    color: "transparent"
+                    border.color: "#fff"
 
-                MouseArea {
-                    id: mouseArea
-                    anchors.fill: parent
-                    onClicked: {
-                        // Play the selected audio file
-                        videoSelected = true;
-                        mediaPlayer.source = model.url;
-                        mediaPlayer.play();
-                        mediaPlayer.durationChanged.connect(function() {
-                            console.log("Duration:", formatDuration(mediaPlayer.duration));
-                        });
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        text: model.name
+                        color: "#fff"
+                        font.pointSize: 16
+                    }
+
+                    MouseArea {
+                        id: mouseArea
+                        anchors.fill: parent
+                        onClicked: {
+                            if (mediaPlayer.playbackState === MediaPlayer.PlayingState) {
+                                mediaPlayer.pause();
+                            }
+                            // Play the selected audio file
+                            videoSelected = true;
+                            videoPlayer.source = model.url;
+                            videoPlayer.play();
+
+                            videoPlayer.durationChanged.connect(function() {
+                                console.log("Duration:", formatDuration(videoPlayer.duration));
+                            });
+                        }
                     }
                 }
             }
@@ -83,26 +115,26 @@ Item {
     }
 
     MediaPlayer {
-        id: mediaPlayer
+        id: videoPlayer
         volume: 1.0 // Initial volume
         autoPlay: true
         onDurationChanged: {
-            if (mediaPlayer.duration > 0) {
-                console.log("Duration:", formatDuration(mediaPlayer.duration));
+            if (videoPlayer.duration > 0) {
+                console.log("Duration:", formatDuration(videoPlayer.duration));
                 // Start the slider update timer when the duration becomes available
                 sliderUpdateTimer.start();
             }
         }
         onPositionChanged: {
-            if (mediaPlayer.duration > 0) {
-                control.value = mediaPlayer.position / mediaPlayer.duration;
-                elapsedTime = formatDuration(mediaPlayer.position);
+            if (videoPlayer.duration > 0) {
+                control.value = videoPlayer.position / videoPlayer.duration;
+                elapsedTime = formatDuration(videoPlayer.position);
             }
         }
         onErrorChanged: {
             // Debugging: Check if there's any error
-            if (mediaPlayer.error !== MediaPlayer.NoError) {
-                console.error("MediaPlayer Error:", mediaPlayer.errorString);
+            if (videoPlayer.error !== MediaPlayer.NoError) {
+                console.error("MediaPlayer Error:", videoPlayer.errorString);
             }
         }
     }
@@ -112,19 +144,41 @@ Item {
         color: "#fff"
         height: parent.height
         width: 1
-        anchors.top: videoLayoutForBack.top
-        anchors.topMargin: 40
-        anchors.left: loopItemForVideo.right
+        anchors {
+            top: videoLayoutForBack.top
+            topMargin: 40
+            left: loopItemForVideo.right
+            bottom: bottomLine.top
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////////
 
     Item {
-        height: parent.height - videoLayoutForBack.height
+        height: parent.height
         width: parent.width - loopItemForVideo.width
-        anchors.top: videoLayoutForBack.top
-        anchors.topMargin: 40 // need to check
-        anchors.left: verticalSeparator.right
+        anchors {
+            top: videoLayoutForBack.top
+            topMargin: 40 // need to check
+            left: verticalSeparator.right
+            bottom: bottomLine.top
+        }
+
+        RadialGradient {
+            anchors.fill: parent
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: themeColor }
+                GradientStop { position: 0.4; color: "transparent" }
+                GradientStop { position: 1.0; color: "#000" }
+            }
+        }
+
+        Rectangle {
+            anchors.top: parent.top
+            width: parent.width
+            border.color: "#fff"
+            height: 1
+        }
 
         Text {
             visible: !videoSelected
@@ -149,7 +203,7 @@ Item {
             VideoOutput {
                 id: videoOutput
                 anchors.fill: parent
-                source: mediaPlayer
+                source: videoPlayer
                 fillMode: VideoOutput.PreserveAspectCrop
             }
         }
@@ -157,12 +211,12 @@ Item {
         Timer {
             id: sliderUpdateTimer
             interval: 1000 // Update every second
-            running: mediaPlayer.playbackState === MediaPlayer.PlayingState // Only update when the media is playing
+            running: videoPlayer.playbackState === MediaPlayer.PlayingState // Only update when the media is playing
 
             onTriggered: {
-                if (mediaPlayer.duration > 0) {
+                if (videoPlayer.duration > 0) {
                     console.log("Started...")
-                    control.value = mediaPlayer.position / mediaPlayer.duration;
+                    control.value = videoPlayer.position / videoPlayer.duration;
                 }
             }
         }
@@ -205,10 +259,10 @@ Item {
 
             onValueChanged: {
                 // Calculate the position in milliseconds based on the slider's value
-                var newPosition = control.value * mediaPlayer.duration;
+                var newPosition = control.value * videoPlayer.duration;
 
                 // Seek to the new position
-                mediaPlayer.seek(newPosition);
+                videoPlayer.seek(newPosition);
             }
         }
 
@@ -227,16 +281,16 @@ Item {
 
             Image {
                 id: playOrPause
-                source: mediaPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/Images/Pause.svg" : "qrc:/assets/Images/Play.svg"
+                source: videoPlayer.playbackState === MediaPlayer.PlayingState ? "qrc:/assets/Images/Pause.svg" : "qrc:/assets/Images/Play.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
             }
             onClicked: {
-                if (mediaPlayer.playbackState === MediaPlayer.PlayingState) {
-                    mediaPlayer.pause();
+                if (videoPlayer.playbackState === MediaPlayer.PlayingState) {
+                    videoPlayer.pause();
                 } else {
-                    mediaPlayer.play();
+                    videoPlayer.play();
                 }
             }
         }
@@ -272,7 +326,7 @@ Item {
         Text {
             visible: videoSelected
             id: videoDuration
-            text: mediaPlayer.duration > 0 ? elapsedTime + "/" + formatDuration(mediaPlayer.duration) : elapsedTime + "/" + "0:00"
+            text: videoPlayer.duration > 0 ? elapsedTime + "/" + formatDuration(videoPlayer.duration) : elapsedTime + "/" + "0:00"
             font.pointSize: 12
             color: "#fff"
             anchors.bottom: parent.bottom
@@ -304,7 +358,7 @@ Item {
         Slider {
             visible: false
             id: volumeControl
-            value: mediaPlayer.volume // Initial value
+            value: videoPlayer.volume // Initial value
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 47
             anchors.right: volumeUp.left
@@ -340,7 +394,7 @@ Item {
 
             onValueChanged: {
                 // Set the volume of the media player
-                mediaPlayer.volume = volumeControl.value;
+                videoPlayer.volume = volumeControl.value;
             }
         }
     }
@@ -360,8 +414,8 @@ Item {
 
     function playCurrentItem() {
         var model = videoListModel.get(listView.currentIndex);
-        mediaPlayer.source = model.url;
-        mediaPlayer.play();
+        videoPlayer.source = model.url;
+        videoPlayer.play();
     }
 }
 

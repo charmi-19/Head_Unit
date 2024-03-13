@@ -8,6 +8,7 @@ class GearSelection: public QObject
 public:
     GearSelection(QObject *parent = nullptr);
     Q_INVOKABLE QString receiveGearInformation();
+    Q_INVOKABLE void setGear(const QString &argument);
 
 public slots:
     QString gear();

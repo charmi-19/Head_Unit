@@ -16,5 +16,31 @@
         <file>assets/Images/Volume_Up.svg</file>
         <file>assets/Images/Next.svg</file>
         <file>assets/Images/Previous.svg</file>
+        <file>assets/Images/bg.jpeg</file>
+        <file>Dashboard2.qml</file>
+        <file>Bubble.qml</file>
+        <file>Time.qml</file>
+        <file>Border.qml</file>
+        <file>Gear.qml</file>
+        <file>assets/Images/background.png</file>
+        <file>assets/Images/bg-mask.png</file>
+        <file>assets/Images/car-highlights.png</file>
+        <file>GearMenu.qml</file>
+        <file>assets/Images/Music.jpg</file>
+        <file>AudioLayout2.qml</file>
+        <file>Map.qml</file>
+        <file>assets/HTML/map.html</file>
+        <file>Calendar.qml</file>
+        <file>assets/Images/Calendar.svg</file>
+        <file>assets/Images/About.svg</file>
+        <file>assets/Images/Bluetooth.svg</file>
+        <file>assets/Images/Power.svg</file>
+        <file>assets/Images/Time.svg</file>
+        <file>assets/Images/Appearance.svg</file>
+        <file>Appearance.qml</file>
+        <file>Bluetooth.qml</file>
+        <file>Power.qml</file>
+        <file>DateTime.qml</file>
+        <file>About.qml</file>
     </qresource>
 </RCC>

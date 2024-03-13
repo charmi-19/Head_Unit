@@ -3,25 +3,25 @@ import QtQuick 2.15
 Item {
     id: backLayout
 
-    Rectangle {
-        id: separator
-        width: parent.width
-        height: 1
-        color: "#fff"
-        anchors.top: parent.top
-        anchors.topMargin: 40
-    }
+    // Rectangle {
+    //     id: separator
+    //     width: parent.width
+    //     height: 1
+    //     color: "#fff"
+    //     anchors.top: parent.top
+    //     anchors.topMargin: 40
+    // }
 
-    Text {
-        id: backLayoutTime
-        text: main.currentTime
-        anchors.right: parent.right
-        anchors.rightMargin: 20
-        anchors.top: parent.top
-        anchors.topMargin: 5
-        font.pointSize: 20
-        color: "#fff"
-    }
+    // Text {
+    //     id: backLayoutTime
+    //     text: main.currentTime
+    //     anchors.right: parent.right
+    //     anchors.rightMargin: 20
+    //     anchors.top: parent.top
+    //     anchors.topMargin: 5
+    //     font.pointSize: 20
+    //     color: "#fff"
+    // }
 
     Image {
         source: "qrc:/assets/Images/Back.svg"
@@ -37,7 +37,7 @@ Item {
             anchors.fill: parent
             onClicked: {
                 console.log("Back Icon touched");
-                main.componentSource = "Dashboard.qml";
+                main.componentSource = "Dashboard2.qml";
             }
         }
     }

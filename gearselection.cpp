@@ -15,7 +15,7 @@ GearSelection::GearSelection(QObject *parent)
 QString GearSelection::receiveGearInformation()
 {
     qDebug() << "Trying to connect D-Bus to receive gear information...";
-    QDBusInterface dbusInterface("com.example.dbus.gear", "/com/example/dBus/gear", "com.example.dbus.gear", QDBusConnection::sessionBus());
+    QDBusInterface dbusInterface("com.example.dbus.gear", "/com/example/dbus/gear", "com.example.dbus.gear", QDBusConnection::sessionBus());
 
     // Show error if connection is failed
     if(!dbusInterface.isValid()) {
@@ -34,6 +34,20 @@ QString GearSelection::receiveGearInformation()
 
     emit gearChanged();
     return gear.value();
+}
+
+void GearSelection::setGear(const QString &argument)
+{
+    qDebug() << "Trying to connect D-Bus to receive gear information...";
+    QDBusInterface dbusInterface("com.example.dbus.gear", "/com/example/dbus/gear", "com.example.dbus.gear", QDBusConnection::sessionBus());
+
+    // Show error if connection is failed
+    if(!dbusInterface.isValid()) {
+        qDebug() << "Failed to create DBusInterface to receive gear information...";
+    }
+
+    // call dbus method to set the gear
+    dbusInterface.call("set_gear", argument);
 }
 
 QString GearSelection::gear()
