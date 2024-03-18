@@ -140,5 +140,4 @@ Window {
     property int currentSongIndex: 0;
     property bool audioSelected: false;
     property string themeColor: "#00f";
-    property var brightnessValue: -0.5;
 }

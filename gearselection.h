@@ -1,6 +1,7 @@
 #ifndef GEARSELECTION_H
 #define GEARSELECTION_H
 #include <QObject>
+
 class GearSelection: public QObject
 {
     Q_OBJECT

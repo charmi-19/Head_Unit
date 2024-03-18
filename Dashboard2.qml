@@ -1,13 +1,10 @@
 import QtQuick 2.15
 import QtGraphicalEffects 1.15
-// import QtWinExtras 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Styles 1.4
 import QtMultimedia 5.15
 import QtQuick.Extras 1.4
 import QtQuick.Extras.Private 1.0
-import QtLocation 5.6
-import QtPositioning 5.6
 
 Item {
     height: parent.height
@@ -32,7 +29,7 @@ Item {
                 GradientStop { position: 0.01; color: themeColor }
                 GradientStop { position: 1.0; color: "#000" }
             }
-            opacity: 0.5
+            opacity: cardBackgroundOpacity
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -42,7 +39,6 @@ Item {
             }
             radius: 20
         }
-        // Border { }
         Rectangle {
             id: clock
             anchors {
@@ -55,7 +51,6 @@ Item {
             radius: width * 0.5
             color: "#fff"
             opacity: 0.8
-
             Rectangle {
                 id: hourHand
                 width: 4
@@ -140,12 +135,11 @@ Item {
         Rectangle {
             id: musicRectangleShadow
             anchors.fill: musicRectangle
-            // color: "#fff"
             gradient: Gradient{
                 GradientStop { position: 0.01; color: themeColor }
                 GradientStop { position: 1.0; color: "#000" }
             }
-            opacity: 0.5
+            opacity: cardBackgroundOpacity
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -155,7 +149,6 @@ Item {
             }
             radius: 20
         }
-        // Border { }
         // Audio Image
         Rectangle {
             id: audioImage
@@ -176,7 +169,6 @@ Item {
                 fillMode: Image.Stretch
             }
         }
-
         Row {
             anchors {
                 horizontalCenter: parent.horizontalCenter
@@ -285,7 +277,7 @@ Item {
                 GradientStop { position: 0.01; color: themeColor }
                 GradientStop { position: 1.0; color: "#000" }
             }
-            opacity: 0.5
+            opacity: cardBackgroundOpacity
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -295,7 +287,6 @@ Item {
             }
             radius: 20
         }
-        // Border { }
         // CircularGauge {
         //     id:speedometer
         //     style: CircularGaugeStyle {
@@ -384,12 +375,10 @@ Item {
             anchors.fill: gearRectangle
             // color: "#fff"
             gradient: Gradient{
-                // GradientStop { position: 0.01; color: "gray" }
-                // GradientStop { position: 1.0; color: "white" }
                 GradientStop { position: 0.01; color: themeColor }
                 GradientStop { position: 1.0; color: "#000" }
             }
-            opacity: 0.5
+            opacity: cardBackgroundOpacity
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -399,7 +388,6 @@ Item {
             }
             radius: 20
         }
-        // Border { }
         Column {
             anchors.centerIn: parent
             spacing: 25
@@ -471,6 +459,7 @@ Item {
     }
 
     Row {
+        id: iconRow
         anchors {
             horizontalCenter: parent.horizontalCenter
             bottom: parent.bottom
@@ -484,19 +473,16 @@ Item {
             color: "transparent"
             Rectangle {
                 anchors.fill: parent
-                // color: "#fff"
                 gradient: Gradient{
-                    // GradientStop { position: 0.01; color: "gray" }
-                    // GradientStop { position: 1.0; color: "white" }
                     GradientStop { position: 0.01; color: "#000" }
                     GradientStop { position: 1.0; color: themeColor }
                 }
-                opacity: 0.5
+                opacity: cardBackgroundOpacity
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        console.log("Calendar Icon Touched");
-                        main.componentSource = "Calendar.qml";
+                        console.log("Map Icon Touched");
+                        main.componentSource = "Map.qml";
                     }
                 }
                 radius: 20
@@ -506,26 +492,21 @@ Item {
                 height: 70
                 anchors.centerIn: parent
                 fillMode: Image.Stretch
-                source: "qrc:/assets/Images/Calendar.svg"
+                source: "qrc:/assets/Images/Location.svg"
             }
         }
         Rectangle {
             width: 100
             height: width
             radius: 20
-            // border.color: "#fff"
-            // border.width: 3
             color: "transparent"
             Rectangle {
                 anchors.fill: parent
-                // color: "#fff"
                 gradient: Gradient{
-                    // GradientStop { position: 0.01; color: "gray" }
-                    // GradientStop { position: 1.0; color: "white" }
                     GradientStop { position: 0.01; color: "#000" }
                     GradientStop { position: 1.0; color: themeColor }
                 }
-                opacity: 0.5
+                opacity: cardBackgroundOpacity
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
@@ -550,19 +531,23 @@ Item {
             color: "transparent"
             Rectangle {
                 anchors.fill: parent
-                // color: "#fff"
                 gradient: Gradient{
-                    // GradientStop { position: 0.01; color: "gray" }
-                    // GradientStop { position: 1.0; color: "white" }
                     GradientStop { position: 0.01; color: "#000" }
                     GradientStop { position: 1.0; color: themeColor }
                 }
-                opacity: 0.5
+                opacity: cardBackgroundOpacity
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        console.log("Video Icon Touched");
-                        main.componentSource = "VideoLayout.qml";
+                        if(SpeedReceiver.speed > 0) {
+                            warningTextVisible = true;
+                            warningTimer.running = true;
+                            animation.start();
+                            console.log("You cannot play video while driving");
+                        } else {
+                            console.log("Video Icon Touched");
+                            main.componentSource = "VideoLayout.qml";
+                        }
                     }
                 }
                 radius: 20
@@ -582,14 +567,11 @@ Item {
             color: "transparent"
             Rectangle {
                 anchors.fill: parent
-                // color: "#fff"
                 gradient: Gradient{
-                    // GradientStop { position: 0.01; color: "gray" }
-                    // GradientStop { position: 1.0; color: "white" }
                     GradientStop { position: 0.01; color: "#000" }
                     GradientStop { position: 1.0; color: themeColor }
                 }
-                opacity: 0.5
+                opacity: cardBackgroundOpacity
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
@@ -609,5 +591,47 @@ Item {
         }
     }
 
+    Rectangle {
+        id: warningRectangle
+        visible: warningTextVisible
+        color: "#fff"
+        anchors {
+            top: iconRow.bottom
+            topMargin: 20
+            right: parent.right
+            rightMargin: 20
+        }
+        radius: 10
+        height: 30
+        // width: 320
+        Text {
+            anchors.centerIn: parent
+            text: "You cannot play video while driving"
+            font.pointSize: 12
+            color: "#000"
+        }
+        Timer {
+            id: warningTimer
+            interval: 5000
+            repeat: false
+            running: false
+            onTriggered: {
+                console.log("triggered");
+                warningTextVisible = false;
+            }
+        }
+        NumberAnimation {
+            id: animation
+            target: warningRectangle
+            property: "width"
+            from: 0
+            to: 280
+            duration: 500
+            easing.type: Easing.Linear
+        }
+    }
+
     property int cardHeight: 350;
+    property var cardBackgroundOpacity: 0.8;
+    property bool warningTextVisible: false;
 }

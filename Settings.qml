@@ -2,20 +2,11 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Styles 1.4
 import QtGraphicalEffects 1.15
-import QtBluetooth 5.15
 
 Item {
     id: calendarLayout
     width: parent.width
     height: parent.height
-    // RadialGradient {
-    //     anchors.fill: parent
-    //     gradient: Gradient {
-    //         GradientStop { position: 0.0; color: themeColor }
-    //         GradientStop { position: 0.4; color: "transparent" }
-    //         GradientStop { position: 1.0; color: "#000" }
-    //     }
-    // }
     GearMenu {
         id: gearMenu
         width: parent.width
@@ -47,6 +38,7 @@ Item {
     ScrollView {
         width: parent.width
         clip: true
+        ScrollBar.vertical.policy: ScrollBar.AlwaysOn
         anchors {
             left: parent.left
             leftMargin: 200
@@ -63,7 +55,7 @@ Item {
             spacing: 20
             Text {
                 id: styleText
-                text: "Style"
+                text: "Ambient Lighting"
                 color: "#fff"
                 font.pointSize: 18
                 anchors.left: parent.left
@@ -100,7 +92,7 @@ Item {
                             GradientStop { position: 0.01; color: themeColor }
                             GradientStop { position: 1.0; color: "#000" }
                         }
-                        opacity: 0.5
+                        opacity: 0.8
                         radius: 20
                     }
                 }
@@ -128,95 +120,44 @@ Item {
                     color: "#fff"
                     font.pointSize: 16
                 }
-                Item {
+                ListView {
+                    model: colors
+                    orientation: ListView.Horizontal
+                    width: parent.width
                     anchors {
                         top: horizontalSeparator.bottom
                         bottom: parent.bottom
                         left: colorText.right
                         leftMargin: 30
                     }
-                    Rectangle {
-                        visible: themeColor === "#00f"
-                        id: outerBlue
+                    delegate: Item {
+                        width: 75
+                        height: width
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 38
-                        height: width
-                        radius: width * 0.5
-                        color: "transparent"
-                        border.color: "#00f"
-                        border.width: 2
-                    }
-                    Rectangle {
-                        anchors.centerIn: outerBlue
-                        width: 30
-                        height: width
-                        radius: width * 0.5
-                        color: "#00f"
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                console.log("#00f");
-                                themeColor = "#00f";
-                            }
+                        Rectangle {
+                            id: outerColor
+                            visible: themeColor === modelData
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 38
+                            height: width
+                            radius: width * 0.5
+                            color: "transparent"
+                            border.color: modelData
+                            border.width: 2
                         }
-                    }
-
-                    Rectangle {
-                        visible: themeColor === "gray"
-                        id: outerGray
-                        anchors {
-                            verticalCenter: parent.verticalCenter
-                            left: outerBlue.right
-                            leftMargin: 30
-                        }
-                        width: 38
-                        height: width
-                        radius: width * 0.5
-                        color: "transparent"
-                        border.color: "gray"
-                        border.width: 2
-                    }
-                    Rectangle {
-                        anchors.centerIn: outerGray
-                        width: 30
-                        height: width
-                        radius: width * 0.5
-                        color: "gray"
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                console.log("gray");
-                                themeColor = "gray";
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        visible: themeColor === "pink"
-                        id: outerPink
-                        anchors {
-                            verticalCenter: parent.verticalCenter
-                            left: outerGray.right
-                            leftMargin: 30
-                        }
-                        width: 38
-                        height: width
-                        radius: width * 0.5
-                        color: "transparent"
-                        border.color: "pink"
-                        border.width: 2
-                    }
-                    Rectangle {
-                        anchors.centerIn: outerPink
-                        width: 30
-                        height: width
-                        radius: width * 0.5
-                        color: "pink"
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                console.log("pink");
-                                themeColor = "pink";
+                        Rectangle {
+                            anchors.centerIn: outerColor
+                            width: 30
+                            height: width
+                            radius: width * 0.5
+                            color: modelData
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    console.log(modelData);
+                                    AmbientLight.setThemeColor(modelData);
+                                    themeColor = modelData;
+                                }
                             }
                         }
                     }
@@ -229,54 +170,119 @@ Item {
             }
             Text {
                 id: powerText
-                text: "Brightness"
+                text: "About"
                 color: "#fff"
                 font.pointSize: 18
             }
             Rectangle {
                 width: parent.width
-                height: 100
+                height: 240
                 color: "transparent"
                 border.color: "gray"
                 radius: 20
-                Slider {
-                    id: brightnessControl
-                    value: brightnessValue // Initial value
-                    width: parent.width * 0.95
-                    anchors.centerIn: parent
-                    // Slider background and handle properties...
-                    background: Rectangle {
-                        x: brightnessControl.leftPadding
-                        y: brightnessControl.topPadding + brightnessControl.availableHeight / 2 - height / 2
-                        implicitWidth: 200
-                        implicitHeight: 2
-                        width: brightnessControl.availableWidth
-                        height: implicitHeight
-                        radius: 2
-                        color: "#bdbebf"
-                        Rectangle {
-                            width: brightnessControl.visualPosition * parent.width
-                            height: parent.height
-                            color: "gray"
-                            radius: 2
+                Image {
+                    id: logo
+                    source: "qrc:/assets/Images/SeaMe.png"
+                    width: 100
+                    height: 100
+                    anchors {
+                        top: parent.top
+                        topMargin: 20
+                        horizontalCenter: parent.horizontalCenter
+                    }
+                }
+                Rectangle {
+                    id: separator1
+                    width: parent.width
+                    height: 1
+                    color: "gray"
+                    anchors {
+                        top: logo.bottom
+                        topMargin: 15
+                    }
+                }
+                Row {
+                    id: nameRow
+                    anchors {
+                        top: separator1.bottom
+                        left: parent.left
+                        leftMargin: 20
+                        right: parent.right
+                        rightMargin: 20
+                    }
+                    height: 50
+                    spacing: 150
+                    Text {
+                        anchors {
+                            top: parent.top
+                            topMargin: 10
                         }
+                        text: "Name"
+                        color: "#fff"
+                        font.pointSize: 14
                     }
-                    handle: Rectangle {
-                        x: brightnessControl.leftPadding + brightnessControl.visualPosition * (brightnessControl.availableWidth - width)
-                        y: brightnessControl.topPadding + brightnessControl.availableHeight / 2 - height / 2
-                        implicitWidth: 16
-                        implicitHeight: 16
-                        radius: 8
-                        color: brightnessControl.pressed ? "#f0f0f0" : "#f6f6f6"
-                        border.color: "#bdbebf"
+                    Rectangle {
+                        height: parent.height
+                        width: 1
+                        color: "gray"
                     }
-                    onValueChanged: {
-                        // Set the volume of the media player
-                        console.log("Power===",brightnessControl.value)
-                        brightnessValue = brightnessControl.value;
+                    Text {
+                        anchors {
+                            top: parent.top
+                            topMargin: 10
+                        }
+                        text: "SEA:ME"
+                        color: "#fff"
+                        font.pointSize: 14
+                    }
+                }
+                Rectangle {
+                    id: separator2
+                    width: parent.width
+                    height: 1
+                    color: "gray"
+                    anchors {
+                        top: nameRow.bottom
+                    }
+                }
+                Row {
+                    id: developersRow
+                    anchors {
+                        top: separator2.bottom
+                        left: parent.left
+                        leftMargin: 20
+                        right: parent.right
+                        rightMargin: 20
+                    }
+                    height: 50
+                    spacing: 103
+                    Text {
+                        anchors {
+                            top: parent.top
+                            topMargin: 10
+                        }
+                        text: "Developers"
+                        color: "#fff"
+                        font.pointSize: 14
+                    }
+                    Rectangle {
+                        height: parent.height
+                        width: 1
+                        color: "gray"
+                    }
+                    Text {
+                        anchors {
+                            top: parent.top
+                            topMargin: 10
+                        }
+                        text: "Charmi, Krunal, Abhinav"
+                        color: "#fff"
+                        font.pointSize: 14
                     }
                 }
             }
         }
     }
+
+    property var colors: ["#00f", "gray", "#891652", "#7E6363", "green", "#B67352"];
 }

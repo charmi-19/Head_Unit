@@ -3,6 +3,8 @@
 #include <currenttime.h>
 #include <QQmlContext>
 #include <gearselection.h>
+#include <speedreceiver.h>
+#include <ambientlight.h>
 
 int main(int argc, char *argv[])
 {
@@ -24,6 +26,16 @@ int main(int argc, char *argv[])
     QQmlContext * rootContext1 = engine.rootContext();
     rootContext1->setContextProperty("GearSelection", &gearSelection);
 
+    SpeedReceiver speedObj;
+    QObject::connect(&speedObj, SIGNAL(speedChanged()), &speedObj, SLOT(speed()));
+
+    QQmlContext * rootContext2 = engine.rootContext();
+    rootContext2->setContextProperty("SpeedReceiver", &speedObj);
+
+    AmbientLight colorObj;
+
+    QQmlContext * rootContext3 = engine.rootContext();
+    rootContext3->setContextProperty("AmbientLight", &colorObj);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(

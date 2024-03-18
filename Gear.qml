@@ -27,14 +27,16 @@ Item {
         Text {
             text: "P"
             color: "#fff"
-            font.pointSize: GearSelection.gear === "P" ? defaultFontSize + 5 : defaultFontSize
+            font.pointSize: GearSelection.gear === "P" ? increasedFontSizeForSelectedGear : defaultFontSize
             font.bold: GearSelection.gear === "P"
             anchors.verticalCenter: parent.verticalCenter
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
                     console.log("Gear P Touched");
-                    if(GearSelection.gear !== "P") {
+                    if(SpeedReceiver.speed > 0 && GearSelection.gear === "P") {
+                        console.log("Either driving or already gear P selected");
+                    } else {
                         GearSelection.setGear("P");
                         showGearMenu = false;
                     }
@@ -44,14 +46,16 @@ Item {
         Text {
             text: "R"
             color: "#fff"
-            font.pointSize: GearSelection.gear === "R" ? defaultFontSize + 5 : defaultFontSize
+            font.pointSize: GearSelection.gear === "R" ? increasedFontSizeForSelectedGear : defaultFontSize
             font.bold: GearSelection.gear === "R"
             anchors.verticalCenter: parent.verticalCenter
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
                     console.log("Gear R Touched");
-                    if(GearSelection.gear !== "R") {
+                    if(SpeedReceiver.speed > 0 && GearSelection.gear === "R") {
+                        console.log("Either driving or already gear R selected");
+                    } else {
                         GearSelection.setGear("R");
                         showGearMenu = false;
                     }
@@ -61,14 +65,16 @@ Item {
         Text {
             text: "N"
             color: "#fff"
-            font.pointSize: GearSelection.gear === "N" ? defaultFontSize + 5 : defaultFontSize
+            font.pointSize: GearSelection.gear === "N" ? increasedFontSizeForSelectedGear : defaultFontSize
             font.bold: GearSelection.gear === "N"
             anchors.verticalCenter: parent.verticalCenter
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
                     console.log("Gear N Touched");
-                    if(GearSelection.gear !== "N") {
+                    if(SpeedReceiver.speed > 0 && GearSelection.gear !== "N") {
+                        console.log("Either driving or already gear N selected");
+                    } else {
                         GearSelection.setGear("N");
                         showGearMenu = false;
                     }
@@ -78,14 +84,16 @@ Item {
         Text {
             text: "D"
             color: "#fff"
-            font.pointSize: GearSelection.gear === "D" ? defaultFontSize + 5 : defaultFontSize
+            font.pointSize: GearSelection.gear === "D" ? increasedFontSizeForSelectedGear : defaultFontSize
             font.bold: GearSelection.gear === "D"
             anchors.verticalCenter: parent.verticalCenter
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
                     console.log("Gear D Touched");
-                    if(GearSelection.gear !== "D") {
+                    if(SpeedReceiver.speed > 0 && GearSelection.gear !== "D") {
+                        console.log("Either driving or already gear D selected");
+                    } else {
                         GearSelection.setGear("D");
                         showGearMenu = false;
                     }
@@ -94,5 +102,6 @@ Item {
         }
     }
 
-    property int defaultFontSize: parent.defaultFontSize ? parent.defaultFontSize : 100
+    property int defaultFontSize: parent.defaultFontSize ? parent.defaultFontSize : 100; // if you want to change this, please change below variable condition as well
+    property int increasedFontSizeForSelectedGear: defaultFontSize + (defaultFontSize === 100 ? 90 : 20);
 }

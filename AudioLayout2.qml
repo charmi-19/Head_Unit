@@ -67,7 +67,6 @@ Item {
             topMargin: 40
             left: audioLayoutForBack.left
             bottom: bottomLine.top
-
         }
         width: parent.width * 0.4
         height: parent.height
@@ -77,6 +76,7 @@ Item {
             height: parent.height
             clip: true
             ScrollBar.horizontal.visible: false
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
             ListView {
                 id: listView
                 width: scrollView.width

@@ -18,7 +18,7 @@ Item {
             horizontalCenter: parent.horizontalCenter
         }
         Text {
-            text: "P"
+            text: GearSelection.gear
             color: "#fff"
             font.pointSize: 25
             anchors.centerIn: parent

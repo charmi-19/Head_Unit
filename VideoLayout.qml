@@ -11,10 +11,37 @@ Item {
     width: parent.width
     height: parent.height
 
+    RadialGradient {
+        visible: folderModel.count === 0
+        anchors.fill: parent
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: themeColor }
+            GradientStop { position: 0.4; color: "transparent" }
+            GradientStop { position: 1.0; color: "#000" }
+        }
+    }
+
+    Text {
+        visible: folderModel.count === 0
+        color: "#fff"
+        text: "Please plug-in your USB!"
+        font.pointSize: 16
+        anchors.centerIn: parent
+    }
+
     GearMenu {
         id: gearMenu
         width: parent.width
         height: parent.height
+    }
+
+    Rectangle {
+        id: topLine
+        anchors.top: parent.top
+        anchors.topMargin: 40
+        width: parent.width
+        border.color: "#fff"
+        height: 1
     }
 
     Rectangle {
@@ -34,6 +61,7 @@ Item {
     }
 
     Item {
+        visible: folderModel.count > 0
         id: loopItemForVideo
         anchors{
             top: videoLayoutForBack.top
@@ -70,6 +98,7 @@ Item {
             height: parent.height
             clip: true
             ScrollBar.horizontal.visible: false
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
             ListView {
                 id: listView
                 width: parent.width
@@ -140,6 +169,7 @@ Item {
     }
 
     Rectangle {
+        visible: folderModel.count > 0
         id: verticalSeparator
         color: "#fff"
         height: parent.height
@@ -155,6 +185,7 @@ Item {
     /////////////////////////////////////////////////////////////////////////////////
 
     Item {
+        visible: folderModel.count > 0
         height: parent.height
         width: parent.width - loopItemForVideo.width
         anchors {
@@ -173,13 +204,6 @@ Item {
             }
         }
 
-        Rectangle {
-            anchors.top: parent.top
-            width: parent.width
-            border.color: "#fff"
-            height: 1
-        }
-
         Text {
             visible: !videoSelected
             id: noVideoSelected
@@ -192,12 +216,16 @@ Item {
         Rectangle {
             visible: videoSelected
             id: videoLogoOuter
-            height: parent.height
+            height: parent.height - 4
             width: parent.width
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 2
-            // radius: 175
+            anchors {
+                top: parent.top
+                topMargin: 1
+                bottom: parent.bottom
+                bottomMargin: 1
+            }
+
             color: "transparent"
             border.color: "#fff"
             VideoOutput {
@@ -273,8 +301,7 @@ Item {
             width: 30
             anchors.left: parent.left
             anchors.leftMargin: 20
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 45
+            anchors.top: control.bottom
             background: Rectangle {
                 color: "transparent"
             }
@@ -302,8 +329,7 @@ Item {
             width: 30
             anchors.left: playOrPauseButton.right
             anchors.leftMargin: 3
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 45
+            anchors.top: control.bottom
             background: Rectangle {
                 color: "transparent"
             }
@@ -329,8 +355,7 @@ Item {
             text: videoPlayer.duration > 0 ? elapsedTime + "/" + formatDuration(videoPlayer.duration) : elapsedTime + "/" + "0:00"
             font.pointSize: 12
             color: "#fff"
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 51
+            anchors.bottom: volumeUp.bottom
             anchors.left: nextVideo.right
             anchors.leftMargin: 8
         }
@@ -340,7 +365,7 @@ Item {
             id: volumeUp
             source: "qrc:/assets/Images/Volume_Up.svg"
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 50
+            anchors.bottomMargin: 14
             anchors.right: parent.right
             anchors.rightMargin: 20
             width: 25
@@ -355,12 +380,34 @@ Item {
             }
         }
 
+        // Image {
+        //     visible: videoSelected
+        //     id: fullScreen
+        //     source: "qrc:/assets/Images/FullScreen.svg"
+        //     anchors.bottom: parent.bottom
+        //     anchors.bottomMargin: 15
+        //     anchors.right: parent.right
+        //     anchors.rightMargin: 20
+        //     width: 25
+        //     height: 25
+        //     MouseArea {
+        //         id: fullScreenMouseArea
+        //         anchors.fill: parent
+        //         hoverEnabled: true
+        //         onClicked: {
+        //             console.log("=======================", fullScreenMode)
+        //             fullScreenMode = true;
+        //             console.log("=======================", fullScreenMode)
+        //         }
+        //     }
+        // }
+
         Slider {
             visible: false
             id: volumeControl
             value: videoPlayer.volume // Initial value
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 47
+            anchors.bottomMargin: 10
             anchors.right: volumeUp.left
             width: 150
 
@@ -401,21 +448,9 @@ Item {
 
     /////////////////////////////////////////////////////////////////////////////////
 
-    property bool videoSelected: false
-    property bool videoListModelPopulated: false
-    property string elapsedTime: '0:00'
-
-    function formatDuration(duration) {
-        var minutes = Math.floor(duration / 60000);
-        var seconds = Math.floor((duration % 60000) / 1000);
-        seconds = seconds < 10 ? "0"+seconds : seconds;
-        return minutes + ':' + seconds;
-    }
-
-    function playCurrentItem() {
-        var model = videoListModel.get(listView.currentIndex);
-        videoPlayer.source = model.url;
-        videoPlayer.play();
-    }
+    property bool videoSelected: false;
+    property bool videoListModelPopulated: false;
+    property string elapsedTime: '0:00';
+    property bool fullScreenMode: false;
 }
 
